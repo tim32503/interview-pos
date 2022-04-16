@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_16_004844) do
+ActiveRecord::Schema.define(version: 2022_04_16_032731) do
+
+  create_table "order_discounts", force: :cascade do |t|
+    t.integer "order_id", null: false
+    t.integer "promotion_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["order_id"], name: "index_order_discounts_on_order_id"
+    t.index ["promotion_id"], name: "index_order_discounts_on_promotion_id"
+  end
 
   create_table "order_items", force: :cascade do |t|
     t.integer "order_id", null: false
@@ -55,6 +64,8 @@ ActiveRecord::Schema.define(version: 2022_04_16_004844) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "order_discounts", "orders"
+  add_foreign_key "order_discounts", "promotions"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"

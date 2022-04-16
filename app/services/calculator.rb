@@ -8,16 +8,15 @@ class Calculator
   end
 
   def calculate
-    init_total
     handle_discount
 
-    @total
+    init_total
   end
 
   private
 
   def init_total
-    @total = @order_items.map { |item| item.product.price * item.quantity }.sum
+    @order_items.map { |item| item.product.price * item.quantity }.sum
   end
 
   def handle_discount; end

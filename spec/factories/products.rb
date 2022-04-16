@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :product do
-    name { Faker::Food.dish.unique }
+    name { Faker::Book.title }
     price { Faker::Number.between(from: 100, to: 999) }
   end
 end
