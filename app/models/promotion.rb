@@ -14,8 +14,10 @@ class Promotion < ApplicationRecord
 
   has_many :order_discounts
   has_many :orders, through: :order_discounts
+  has_many :order_item_discounts
+  has_many :order_items, through: :order_item_discounts
 
   def discount_type
-    DISCOUNT_TYPE.filter { |type| type[:id] == self.discount_type_id }[0][:code]
+    DISCOUNT_TYPE.filter { |type| type[:id] == discount_type_id }[0][:code]
   end
 end
