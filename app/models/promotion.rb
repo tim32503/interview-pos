@@ -12,6 +12,9 @@ class Promotion < ApplicationRecord
     { id: 1, code: 'piece', name: '滿件' },
     { id: 2, code: 'amount', name: '滿額' }
   ].freeze
+  RESTRICTION_TYPE = [
+    { id: 1, code: 'usable_count', name: '全站限制使用次數' }
+  ].freeze
 
   has_many :order_discounts
   has_many :orders, through: :order_discounts

@@ -161,4 +161,42 @@ RSpec.describe(Calculator) do
       expect(order.products).to(include(@free_product))
     end
   end
+
+  describe '訂單滿 X 元折 Y 元,此折扣在全站總共只能套用 N 次' do
+    before(:each) do
+      @promotion = FactoryBot.create(
+        :promotion,
+        name: '滿 1000 元折 100 元，全站僅限套用 10 次',
+        discount_object: 'Order',
+        discount_type_id: 1,
+        discount_value: 100,
+        threshold_type_id: 2,
+        threshold_value: 1000,
+        restriction_type_id: 1,
+        restriction_value: 10
+      )
+    end
+
+    it '訂單滿 1000 元折 100 元，全站僅限套用 10 次' do
+      used_count = 0
+
+      while used_count < @promotion.restriction_value
+        order = user.orders.new
+        subtotal = 0
+
+        while subtotal < 1000
+          product = FactoryBot.create(:product)
+          quantity = Faker::Number.number(digits: 1)
+          order.order_items.new(product_id: product.id, quantity: quantity).save!
+          subtotal += (product.price * quantity)
+        end
+
+        order.save!
+
+        used_count = OrderDiscount.where(promotion_id: @promotion.id).size
+      end
+
+      expect(used_count).to(eq(@promotion.restriction_value.to_i))
+    end
+  end
 end

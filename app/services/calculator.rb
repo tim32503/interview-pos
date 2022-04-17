@@ -43,6 +43,9 @@ class Calculator
 
     return unless promotion.present?
 
+    discount_count = OrderDiscount.where(promotion_id: promotion.id).size
+    return if promotion.restriction_type_id.present? && discount_count >= promotion.restriction_value
+
     @order.order_discounts.new(promotion_id: promotion.id).save!
 
     @discount_total +=
