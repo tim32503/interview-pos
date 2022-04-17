@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Promotion 優惠組合
 class Promotion < ApplicationRecord
   DISOUNT_OBJECT = %w[Order Product Gift].freeze
   DISCOUNT_TYPE = [

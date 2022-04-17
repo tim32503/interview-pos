@@ -14,7 +14,7 @@ class Order < ApplicationRecord
   private
 
   def init_order_total
-    self.total = Calculator.new(self).total
+    self.total = Calculator.new(self).original_total
   end
 
   def update_order_total

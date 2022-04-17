@@ -15,7 +15,12 @@ RSpec.describe(Calculator) do
       order.order_items.new(product_id: ice_cream.id, quantity: 1).save!
       order.save!
 
-      expect(order.total).to(eq(89))
+      result = Calculator.new(order)
+      result.calculate
+
+      expect(result.original_total).to(eq(89))
+      expect(result.discount_total).to(eq(0))
+      expect(order.total).to(eq(result.amount_payable))
     end
 
     it '購買豆漿 6 件，冰淇淋 3 件，總計 267 元' do
@@ -25,7 +30,12 @@ RSpec.describe(Calculator) do
       order.order_items.new(product_id: ice_cream.id, quantity: 3).save!
       order.save!
 
-      expect(order.total).to(eq(267))
+      result = Calculator.new(order)
+      result.calculate
+
+      expect(result.original_total).to(eq(267))
+      expect(result.discount_total).to(eq(0))
+      expect(order.total).to(eq(result.amount_payable))
     end
   end
 
@@ -42,7 +52,12 @@ RSpec.describe(Calculator) do
         order.order_items.new(product_id: ice_cream.id, quantity: 20).save!
         order.save!
 
-        expect(order.total).to(eq(850))
+        result = Calculator.new(order)
+        result.calculate
+
+        expect(result.original_total).to(eq(1000))
+        expect(result.discount_total).to(eq(150))
+        expect(order.total).to(eq(result.amount_payable))
       end
 
       it '總計 X * 0.85 元' do
@@ -58,7 +73,12 @@ RSpec.describe(Calculator) do
 
         order.save!
 
-        expect(order.total).to(eq((subtotal * 0.85).to_i))
+        result = Calculator.new(order)
+        result.calculate
+
+        expect(result.original_total).to(eq(subtotal))
+        expect(result.discount_total).to(eq((subtotal * 15 / 100).round))
+        expect(order.total).to(eq(result.amount_payable))
       end
     end
   end
@@ -85,7 +105,12 @@ RSpec.describe(Calculator) do
         order.order_items.new(product_id: @product1.id, quantity: 4).save!
         order.save!
 
-        expect(order.total).to(eq((@product1.price * 4 - 100).to_i))
+        result = Calculator.new(order)
+        result.calculate
+
+        expect(result.original_total).to(eq(@product1.price * 4))
+        expect(result.discount_total).to(eq(100))
+        expect(order.total).to(eq(result.amount_payable))
       end
 
       it '購買一號商品 2 件，二號商品 10 件' do
@@ -95,8 +120,45 @@ RSpec.describe(Calculator) do
         order.order_items.new(product_id: @product2.id, quantity: 10).save!
         order.save!
 
-        expect(order.total).to(eq((@product1.price * 2 - 50 + @product2.price * 10 - 200).to_i))
+        result = Calculator.new(order)
+        result.calculate
+
+        expect(result.original_total).to(eq(@product1.price * 2 + @product2.price * 10))
+        expect(result.discount_total).to(eq(50 + 200))
+        expect(order.total).to(eq(result.amount_payable))
       end
+    end
+  end
+
+  describe '訂單滿 X 元贈送特定商品 1 件' do
+    before(:each) do
+      @free_product = FactoryBot.create(:product)
+    end
+
+    it '訂單滿 399 元贈送特定商品 1 件' do
+      FactoryBot.create(
+        :promotion,
+        name: '訂單滿 399 元贈送特定商品 1 件',
+        discount_object: 'Order',
+        discount_type_id: 3,
+        object_id: @free_product.id,
+        threshold_value: 399,
+        threshold_type_id: 2
+      )
+
+      order = user.orders.new
+      subtotal = 0
+
+      while subtotal < 399
+        product = FactoryBot.create(:product)
+        quantity = Faker::Number.number(digits: 1)
+        order.order_items.new(product_id: product.id, quantity: quantity).save!
+        subtotal += (product.price * quantity)
+      end
+
+      order.save!
+
+      expect(order.products).to(include(@free_product))
     end
   end
 end

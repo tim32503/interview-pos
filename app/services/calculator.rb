@@ -2,17 +2,21 @@
 
 # 結帳金額計算機
 class Calculator
-  attr_accessor :total
+  attr_accessor :original_total, :discount_total, :amount_payable
 
   def initialize(order)
     @order = order
-    @total = init_total
+    @original_total = init_total
+    @discount_total = 0
+    @amount_payable = 0
   end
 
   def calculate
     handle_discount
 
-    @total - @discount_total
+    @amount_payable = @original_total - @discount_total
+
+    @amount_payable
   end
 
   private
@@ -22,16 +26,20 @@ class Calculator
   end
 
   def handle_discount
-    @discount_total = 0
-
-    find_usable_order_promotion
-    find_usable_product_promotion
+    find_order_promotion
+    find_product_promotion
+    find_free_product
   end
 
-  def find_usable_order_promotion
+  def find_order_promotion
     # 找出「訂單折扣、滿額折」的優惠活動
     promotion =
-      Promotion.find_by(discount_object: 'Order', threshold_type_id: 2, threshold_value: Float::INFINITY..@order.total)
+      Promotion.find_by(
+        discount_object: 'Order',
+        discount_type_id: [1, 2],
+        threshold_type_id: 2,
+        threshold_value: Float::INFINITY..@original_total
+      )
 
     return unless promotion.present?
 
@@ -40,13 +48,13 @@ class Calculator
     @discount_total +=
       case promotion.discount_type
       when 'amount'
-        promotion.discount_value
+        promotion.discount_value.to_i
       when 'percentage'
-        @order.total * (1 - (promotion.discount_value / 100))
+        (@original_total * (100 - promotion.discount_value) / 100).to_i
       end
   end
 
-  def find_usable_product_promotion
+  def find_product_promotion
     @order.order_items.find_each do |item|
       promotion =
         Promotion.find_by(
@@ -57,10 +65,28 @@ class Calculator
         )
 
       if promotion.present? && item.quantity >= promotion.threshold_value
-        @discount_total += (promotion.discount_value * (item.quantity / promotion.threshold_value))
+        @discount_total += (promotion.discount_value * (item.quantity / promotion.threshold_value)).to_i
 
         item.order_item_discounts.new(promotion_id: promotion.id).save!
       end
     end
+  end
+
+  def find_free_product
+    promotion =
+      Promotion.find_by(
+        discount_object: 'Order',
+        discount_type_id: 3,
+        threshold_type_id: 2,
+        threshold_value: Float::INFINITY..@original_total
+      )
+
+    return unless promotion.present?
+
+    free_product = Product.find(promotion.object_id)
+
+    @order.order_items.new(product_id: free_product.id, quantity: 1).save!
+    @discount_total += free_product.price
+    @order.order_discounts.new(promotion_id: promotion.id).save!
   end
 end
