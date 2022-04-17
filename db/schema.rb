@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_16_065806) do
+ActiveRecord::Schema.define(version: 2022_04_17_064152) do
 
   create_table "order_discounts", force: :cascade do |t|
     t.integer "order_id", null: false
@@ -65,6 +65,8 @@ ActiveRecord::Schema.define(version: 2022_04_16_065806) do
     t.integer "threshold_type_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "restriction_type_id"
+    t.float "restriction_value"
   end
 
   create_table "users", force: :cascade do |t|
