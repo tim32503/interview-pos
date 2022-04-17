@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_17_064152) do
+ActiveRecord::Schema.define(version: 2022_04_17_120801) do
 
   create_table "order_discounts", force: :cascade do |t|
     t.integer "order_id", null: false
     t.integer "promotion_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.float "amount", default: 0.0
     t.index ["order_id"], name: "index_order_discounts_on_order_id"
     t.index ["promotion_id"], name: "index_order_discounts_on_promotion_id"
   end
