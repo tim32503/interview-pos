@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_17_120801) do
+ActiveRecord::Schema.define(version: 2022_04_18_013404) do
 
   create_table "order_discounts", force: :cascade do |t|
     t.integer "order_id", null: false
@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(version: 2022_04_17_120801) do
     t.integer "promotion_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.float "amount", default: 0.0
     t.index ["order_item_id"], name: "index_order_item_discounts_on_order_item_id"
     t.index ["promotion_id"], name: "index_order_item_discounts_on_promotion_id"
   end
