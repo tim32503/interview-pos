@@ -1,24 +1,15 @@
-# README
+# INTERVIEW-POS
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+請使用你熟悉的語言(我們使用 Ruby,但你可以選用你擅⻑的語言),實作一個結帳金額計算機。
+其中會有各種商品優惠的折扣邏輯,並計算出最後的原始金額、折扣金額、實付金額。
 
-Things you may want to cover:
+- 至少需實作 Promotion, Order, Product, User, Calculator,等 5 個 class,可視需要實作其他 Class
+- 不用定義太細的欄位(例如 User 只要定義有 user_id 即可),只需要定義足以完成規格的欄位。
+- 需根據規格撰寫單元測試,保證以下的情境都可以正確計算。
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+  - [x] 訂單滿 X 元折 Z %
+  - [x] 特定商品滿 X 件折 Y 元
+  - [x] 訂單滿 X 元贈送特定商品
+  - [x] 訂單滿 X 元折 Y 元,此折扣在全站總共只能套用 N 次
+  - [x] (加分題) 訂單滿 X 元折 Z %,折扣每人只能總共優惠 N 元
+  - [ ] (加分題) 訂單滿 X 元折 Y 元,此折扣在全站每個月折扣上限為 N 元
