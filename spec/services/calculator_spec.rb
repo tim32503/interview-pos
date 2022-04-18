@@ -199,4 +199,42 @@ RSpec.describe(Calculator) do
       expect(used_count).to(eq(@promotion.restriction_value.to_i))
     end
   end
+
+  describe '訂單滿 X 元折 Z %，折扣每人只能總共優惠 N 元' do
+    before(:each) do
+      @promotion = FactoryBot.create(
+        :promotion,
+        name: '滿 1000 元 9 折，每人折扣上限 200 元',
+        discount_object: 'Order',
+        discount_type_id: 2,
+        discount_value: 90,
+        threshold_type_id: 2,
+        threshold_value: 1000,
+        restriction_type_id: 2,
+        restriction_value: 200
+      )
+    end
+
+    it '訂單滿 1000 元 9 折，每人折扣上限 200 元' do
+      subtotal = 0
+      order = user.orders.new
+
+      while subtotal * 0.1 < @promotion.restriction_value
+        product = FactoryBot.create(:product)
+        quantity = Faker::Number.between(from: 1, to: 9)
+        order.order_items.new(product_id: product.id, quantity: quantity).save!
+        subtotal += (product.price * quantity)
+      end
+
+      order.save!
+
+      discount_amount_total =
+        OrderDiscount.includes(order: :user)
+                     .where(promotion_id: @promotion.id, orders: { user_id: user.id })
+                     .sum(:amount)
+
+      expect(discount_amount_total).to(eq(200))
+      expect(order.total).to(eq(subtotal - 200))
+    end
+  end
 end

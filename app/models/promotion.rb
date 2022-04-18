@@ -13,7 +13,8 @@ class Promotion < ApplicationRecord
     { id: 2, code: 'amount', name: '滿額' }
   ].freeze
   RESTRICTION_TYPE = [
-    { id: 1, code: 'usable_count', name: '全站限制使用次數' }
+    { id: 1, code: 'usable_count_limit', name: '全站限制使用次數' },
+    { id: 2, code: 'amount_limit_per_user', name: '每人所有訂單折扣金額上限' }
   ].freeze
 
   has_many :order_discounts
@@ -23,5 +24,9 @@ class Promotion < ApplicationRecord
 
   def discount_type
     DISCOUNT_TYPE.filter { |type| type[:id] == discount_type_id }[0][:code]
+  end
+
+  def restriction_type
+    RESTRICTION_TYPE.filter { |type| type[:id] == restriction_type_id }[0][:code]
   end
 end
