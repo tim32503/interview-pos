@@ -34,14 +34,15 @@ class Calculator
   def find_order_promotion
     # 找出「訂單折扣、滿額折」的優惠活動
     promotion =
-      Promotion.find_by(
-        discount_object: 'Order',
-        discount_type_id: [1, 2],
-        threshold_type_id: 2,
-        threshold_value: Float::INFINITY..@original_total
-      )
+    Promotion.find_by(
+      discount_object: 'Order',
+      discount_type_id: [1, 2],
+      threshold_type_id: 2,
+      threshold_value: Float::INFINITY..@original_total
+    )
 
     return unless promotion.present?
+    return if @order.order_discounts.present? && promotion.restriction_type_id.nil?
 
     if promotion.restriction_type_id.present?
       discount_count =
@@ -73,11 +74,13 @@ class Calculator
 
     @discount_total += discount_subtotal
 
-    @order.order_discounts.new(promotion_id: promotion.id, amount: @discount_total).save!
+    @order.order_discounts.new(promotion_id: promotion.id, amount: discount_subtotal).save!
   end
 
   def find_product_promotion
     @order.order_items.find_each do |item|
+      next if item.order_item_discounts.present?
+
       promotion =
         Promotion.find_by(
           discount_object: 'Product',

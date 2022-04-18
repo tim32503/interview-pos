@@ -14,7 +14,7 @@ class Promotion < ApplicationRecord
   ].freeze
   RESTRICTION_TYPE = [
     { id: 1, code: 'usable_count_limit', name: '全站限制使用次數' },
-    { id: 2, code: 'amount_limit_per_user', name: '每人所有訂單折扣金額上限' }
+    { id: 2, code: 'amount_limit_per_user', name: '每人每筆訂單折扣金額上限' }
   ].freeze
 
   has_many :order_discounts
